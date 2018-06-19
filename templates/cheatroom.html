@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat theme example</title>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+
+    <script type="text/javascript">
+        var userName = '{{ session['userName'] }}';
+        var roomNumber = '{{ session['room'] }}';
+
+        window.onload = function() {
+            var sendButton = document.getElementById("btnSend");
+            sendButton.addEventListener("click", function() {
+                var textElement = document.getElementById("textfield");
+                var message = textElement.value;
+                textElement.value = '';
+                socket.emit('text', {msg: message, userName: userName});
+            });
+        };
+
+        function addNewMessage(message, userThatSentTheMessage) {
+            var chatsDiv = document.getElementById("chatlogs");
+
+            var node = document.createElement("div");
+
+            if (userThatSentTheMessage == userName)
+                node.className = "chat self";
+            else
+                node.className = "chat friend";
+            var innerDiv = document.createElement("div");
+            innerDiv.className = "user-photo";
+            var innerP = document.createElement("p");
+            innerP.className = "chat-message";
+            node.appendChild(innerDiv);
+            node.appendChild(innerP);
+
+            var textNode = document.createTextNode(message);
+            innerP.appendChild(textNode);
+
+            chatsDiv.appendChild(node);
+        }
+
+
+        function addNewAdminMessage(message) {
+            var chatsDiv = document.getElementById("chatlogs");
+
+            var innerP = document.createElement("p");
+            innerP.className = "adminMessage";
+            var textNode = document.createTextNode(message);
+            innerP.appendChild(textNode);
+            chatsDiv.appendChild(innerP);
+        }
+
+
+
+
+    </script>
+
+    <script type="text/javascript" charset="utf-8">
+        var socket;
+        $(document).ready(function(){
+            debugger;
+            socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
+            socket.on('connect', function() {
+                socket.emit('joined', {});
+            });
+            socket.on('status', function(data) {
+                addNewAdminMessage(data.msg);
+
+
+                // $('#chat').val($('#chat').val() + '<' + data.msg + '>\n');
+                // $('#chat').scrollTop($('#chat')[0].scrollHeight);
+            });
+            socket.on('message', function(data) {
+                addNewMessage(data.msg, data.userThatSentTheMessage);
+            });
+        });
+        function leave_room() {
+            socket.emit('left', {}, function() {
+                socket.disconnect();
+
+                // go back to the login page
+                window.location.href = "{{ url_for('login_root') }}";
+            });
+        }
+
+
+
+
+
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: tahoma, sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1ddced;
+        }
+
+        .chatbox {
+            width: 500px;
+            min-width: 390px;
+            height: 600px;
+            background: #fff;
+            padding: 25px;
+            margin: 20px auto;
+            box-shadow: 0 3px #ccc;
+        }
+
+        .chatlogs {
+            padding: 10px;
+            width: 100%;
+            height: 450px;
+            overflow-x: hidden;
+            overflow-y: scroll;
+        }
+
+        .chatlogs::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .chatlogs::-webkit-scrollbar-thumb {
+            border-radius: 5px;
+            background: rgba(0,0,0,.1);
+        }
+
+        .chat {
+            display: flex;
+            flex-flow: row wrap;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .adminMessage {
+            border-radius: 25px;
+            border: 2px solid #6699ff;
+            padding: 20px;
+            width: 400px;
+            height: 2px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .chat .user-photo {
+            width: 60px;
+            height: 60px;
+            background: #ccc;
+            border-radius: 50%;
+            overflow:hidden;
+        }
+
+        .chat .user-photo img{
+            width: 100%
+
+        }
+
+        .chat .chat-message {
+            width: 80%;
+            padding: 15px;
+            margin: 5px 10px 0;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 20px;
+        }
+
+        .friend .chat-message {
+            background: #1adda4;
+        }
+
+        .self .chat-message {
+            background: #1ddced;
+            order: -1;
+        }
+
+        .chat-form {
+            margin-top: 20px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .chat-form input {
+            background: #fbfbfb;
+            width: 75%;
+            height: 50px;
+            border: 2px solid #eee;
+            border-radius: 3px;
+            resize: none;
+            padding: 10px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .chat-form textarea:focus {
+            background: #fff;
+        }
+
+        .chat-form button {
+            background: #1ddced;
+            padding: 5px 15px;
+            font-size: 30px;
+            color: #fff;
+            border: none;
+            margin: 0 10px;
+            border-radius: 3px;
+            box-shadow: 0 3px 0 #0eb2c1;
+            cursor: pointer;
+
+            -webkit-transaction: background .2s ease;
+            -moz-transaction: backgroud .2s ease;
+            -o-transaction: backgroud .2s ease;
+        }
+
+        .chat-form button:hover {
+            background: #13c8d9;
+        }
+
+
+
+    </style>
+</head>
+<body>
+<center>
+    <h1>Welcome: {{ session['userName'] }}</h1>
+    <br/>
+    <h1>Room Name: {{ session['room'] }}</h1>
+</center>
+<div class="chatbox">
+
+    <div id="chatlogs" class="chatlogs">
+        <div class="chat friend">
+            <div class="user-photo"></div>
+            <p class="chat-message">1</p>
+        </div>
+        <div class="chat friend">
+            <div class="user-photo"></div>
+            <p class="chat-message">8</p>
+        </div>
+        <div class="chat self">
+            <div class="user-photo"><img src="http://b-happy.co.il/image/cache/data/minions/502-500x500.jpg"></div>
+            <p class="chat-message">3</p>
+        </div>
+        <div class="chat self">
+            <div class="user-photo"></div>
+            <p class="chat-message">This is very long. This is very long. This is very long. This is very long. This is
+                very long. This is very long. This is very long. This is very long. This is very long. This is very
+                long. This is very long. This is very long. This is very long. This is very long. </p>
+        </div>
+        <div class="chat friend">
+            <div class="user-photo"></div>
+            <p class="chat-message">This is very long2.This is very long2.This is very long2.This is very long2.This is
+                very long2.This is very long2.This is very long2.This is very long2.This is very long2.This is very
+                long2.This is very long2.This is very long2.This is very long2. .
+            </p>
+        </div>
+    </div>
+    <!-- <form action="http://localhost:5000/message" class="form" method="post"> -->
+    <form action="" class="form" method="post" onSubmit="return false">
+        <div class="chat-form">
+            <input id="textfield" placeholder="Write your message here" name="messagefield" type="text">
+            <button id="btnSend">Send</button>
+            <input type="hidden" value="foo" name="user_id"/>
+        </div>
+    </form>
+</div>
+
+
+</body>
+</html>

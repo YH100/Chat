@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chat theme example</title>
+    <title>YH Chat</title>
+
+    <script src="{{ url_for('static', filename='js/crypto-js.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/aes.min.js') }}"></script>
+
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-1.4.2.min.js"></script>
     <script type="text/javascript"
@@ -11,17 +15,55 @@
         var userName = '{{ session['userName'] }}';
         var roomNumber = '{{ session['room'] }}';
 
+        var CryptoJSAesJson = {
+            parse: function(jsonStr) {
+                var j = JSON.parse(jsonStr);
+                var cipherParams = CryptoJS.lib.CipherParams.create({
+                    ciphertext: CryptoJS.enc.Base64.parse(j.ct)
+                });
+                if (j.iv) cipherParams.iv = CryptoJS.enc.Hex.parse(j.iv);
+                if (j.s) cipherParams.salt = CryptoJS.enc.Hex.parse(j.s);
+                return cipherParams;
+            },
+            stringify: function(cipherParams) {
+                var j = {
+                    ct: cipherParams.ciphertext.toString(CryptoJS.enc.Base64)
+                };
+                if (cipherParams.iv) j.iv = cipherParams.iv.toString();
+                if (cipherParams.salt) j.s = cipherParams.salt.toString();
+                return JSON.stringify(j);
+            }
+        };
+        var passphrase = 'fcf8afd67e96fa3366dd8eafec8bcace';
+        var aesObject = {
+            decrypt: function(data) {
+                return JSON.parse(CryptoJS.AES.decrypt(data, passphrase, {
+                    format: CryptoJSAesJson
+                }).toString(CryptoJS.enc.Utf8));
+            },
+            encrypt: function(data) {
+                return CryptoJS.AES.encrypt(JSON.stringify(data), passphrase, {
+                    format: CryptoJSAesJson
+                }).toString();
+            }
+        };
+
         window.onload = function() {
             var sendButton = document.getElementById("btnSend");
             sendButton.addEventListener("click", function() {
                 var textElement = document.getElementById("textfield");
                 var message = textElement.value;
                 textElement.value = '';
-                socket.emit('text', {msg: message, userName: userName});
+                var encryptedMessage = aesObject.encrypt(message);
+                socket.emit('text', {msg: encryptedMessage, userName: userName});
             });
         };
 
         function addNewMessage(message, userThatSentTheMessage) {
+            encrypedMessage = message;
+            message = aesObject.decrypt(encrypedMessage)
+            message = userThatSentTheMessage + ": " + message;
+
             var chatsDiv = document.getElementById("chatlogs");
 
             var node = document.createElement("div");
@@ -49,13 +91,23 @@
 
             var innerP = document.createElement("p");
             innerP.className = "adminMessage";
+
             var textNode = document.createTextNode(message);
             innerP.appendChild(textNode);
             chatsDiv.appendChild(innerP);
         }
 
+        function wrapText(text) {
+            var words = text.split(" ");
 
-
+            var result = "";
+            for (var i = 0; i < words.length; i++) {
+                result += words[i] + " ";
+                if (i % 5 == 0)
+                    result += "\n";
+            }
+            return result;
+        }
 
     </script>
 
@@ -86,6 +138,8 @@
                 window.location.href = "{{ url_for('login_root') }}";
             });
         }
+
+
 
 
 
@@ -222,6 +276,45 @@
             background: #13c8d9;
         }
 
+.button {
+  border-radius: 4px;
+  background-color: #f4511e;
+  border: none;
+  color: #FFFF;
+  text-align: center;
+  font-size: 28px;
+  padding: 20px;
+  width: 300px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.button span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.button:hover span {
+  padding-right: 25px;
+}
+
+.button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+
 
 
     </style>
@@ -232,34 +325,17 @@
     <br/>
     <h1>Room Name: {{ session['room'] }}</h1>
 </center>
+<button class="button"><span>Sport</span></button>
+<br>
+<button class="button"><span>Computer games</span></button>
+<br>
+<button class="button"><span>Food - cooking</span></button>
+<br>
+<button class="button"><span>Theater</span></button>
 <div class="chatbox">
 
     <div id="chatlogs" class="chatlogs">
-        <div class="chat friend">
-            <div class="user-photo"></div>
-            <p class="chat-message">1</p>
-        </div>
-        <div class="chat friend">
-            <div class="user-photo"></div>
-            <p class="chat-message">8</p>
-        </div>
-        <div class="chat self">
-            <div class="user-photo"><img src="http://b-happy.co.il/image/cache/data/minions/502-500x500.jpg"></div>
-            <p class="chat-message">3</p>
-        </div>
-        <div class="chat self">
-            <div class="user-photo"></div>
-            <p class="chat-message">This is very long. This is very long. This is very long. This is very long. This is
-                very long. This is very long. This is very long. This is very long. This is very long. This is very
-                long. This is very long. This is very long. This is very long. This is very long. </p>
-        </div>
-        <div class="chat friend">
-            <div class="user-photo"></div>
-            <p class="chat-message">This is very long2.This is very long2.This is very long2.This is very long2.This is
-                very long2.This is very long2.This is very long2.This is very long2.This is very long2.This is very
-                long2.This is very long2.This is very long2.This is very long2. .
-            </p>
-        </div>
+
     </div>
     <!-- <form action="http://localhost:5000/message" class="form" method="post"> -->
     <form action="" class="form" method="post" onSubmit="return false">

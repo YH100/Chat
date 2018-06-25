@@ -16,7 +16,7 @@
             }
         }
 
-        function validate() {
+        function validate_in() {
             var userName = window.loginForm.username.value;
             var password = window.loginForm.password.value;
 
@@ -29,202 +29,305 @@
             return true;
         }
 
+        function validate_up() {
+            var firstname = window.signup.FirstName.value;
+            var lastname = window.signup.LastName.value;
+            var username = window.signup.username.value;
+            var email = window.signup.email.value;
+            var password = window.signup.psw.value;
+            var passwordrepeat = window.signup.psw-repeat.value;
+            var bday = window.signup.bday.value;
+            var img = window.signup.img.value;
+            window.alert("firstname is " + firstname + "lastname is " + lastname + "userName is " + "userName" )
 
+            if ((userName.length < 4) || (password.length < 6))
+            {
+                alert('user name must be at least 4 characters,\nand password must be at least 6 characters');
+                return false;
+            }
+
+            return true;
+        }
+
+        function forgetPasswordButtonClicked() {
+            var popup = document.getElementById("forgetPasswordPopup");
+            popup.classList.toggle("show");
+        }
 
     </script>
 
     <style>
-    /* Full-width input fields */
-    input[type=text], input[type=password],input[type=date],input[type=file],input[type=email] {
-        width: 100%;
-        padding: 15px;
-        margin: 5px 0 22px 0;
-        display: inline-block;
-        border: none;
-        background: #f1f1f1;
-    }
-
-    /* Add a background color when the inputs get focus */
-    input[type=text]:focus, input[type=password]:focus,input[type=date]:focus,input[type=file]:focus,input[type=email]:focus {
-        background-color: #ddd;
-        outline: none;
-    }
-
-    /* Set a style for all buttons */
-    button {
-        background-color: #4CAF50;
-        color: white;
-        padding: 14px 20px;
-        margin: 8px 0;
-        border: none;
-        cursor: pointer;
-        width: 100%;
-        opacity: 0.9;
-    }
-
-    button:hover {
-        opacity:1;
-    }
-
-    /* Extra styles for the cancel button */
-    .cancelbtn {
-        padding: 14px 20px;
-        background-color: #f44336;
-    }
-
-    /* Float cancel and signup buttons and add an equal width */
-    .cancelbtn, .signupbtn {
-      float: left;
-      width: 50%;
-    }
-
-    /* Add padding to container elements */
-    .container {
-        padding: 16px;
-    }
-
-    /* The Modal (background) */
-    .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: #474e5d;
-        padding-top: 50px;
-    }
-
-    /* Modal Content/Box */
-    .modal-content {
-        background-color: #fefefe;
-        margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
-        border: 1px solid #888;
-        width: 80%; /* Could be more or less, depending on screen size */
-    }
-
-    /* Style the horizontal ruler */
-    hr {
-        border: 1px solid #f1f1f1;
-        margin-bottom: 25px;
-    }
-
-    /* The Close Button (x) */
-    .close {
-        position: absolute;
-        right: 35px;
-        top: 15px;
-        font-size: 40px;
-        font-weight: bold;
-        color: #f1f1f1;
-    }
-
-    .close:hover,
-    .close:focus {
-        color: #f44336;
-        cursor: pointer;
-    }
-
-    /* Clear floats */
-    .clearfix::after {
-        content: "";
-        clear: both;
-        display: table;
-    }
-
-    /* Change styles for cancel button and signup button on extra small screens */
-    @media screen and (max-width: 300px) {
-        .cancelbtn, .signupbtn {
-           width: 100%;
+        /* Full-width input fields */
+        input[type=text], input[type=password],input[type=date],input[type=file],input[type=email] {
+            width: 100%;
+            padding: 15px;
+            margin: 5px 0 22px 0;
+            display: inline-block;
+            border: none;
+            background: #f1f1f1;
         }
-    }
-	body{
-    margin: 0;
-    padding: 0;
-    background: url(http://i66.tinypic.com/2nndag.jpg);
-    background-size: cover;
-    background-position: center;
-    font-family: sans-serif;
-}
-.login-box{
-    width: 320px;
-    height: 420px;
-    background: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    top: 50%;
-    left: 50%;
-    position: absolute;
-    transform: translate(-50%,-50%);
-    box-sizing: border-box;
-    padding: 70px 30px;
-}
-.avatar{
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    position: absolute;
-    top: -50px;
-    left: calc(50% - 50px);
-}
-h1{
-    margin: 0;
-    padding: 0 0 20px;
-    text-align: center;
-    font-size: 22px;
-}
-.login-box p{
-    margin: 0;
-    padding: 0;
-    font-weight: bold;
-}
-.login-box input{
-    width: 100%;
-    margin-bottom: 20px;
-}
-.login-box input[type="text"], input[type="password"]
-{
-    border: none;
-    border-bottom: 1px solid #fff;
-    background: transparent;
-    outline: none;
-    height: 40px;
-    color: #fff;
-    font-size: 16px;
-}
-.login-box input[type="submit"]
-{
-    border: none;
-    outline: none;
-    height: 40px;
-    background: #1c8adb;
-    color: #fff;
-    font-size: 18px;
-    border-radius: 20px;
-}
-.login-box input[type="submit"]:hover
-{
+
+        /* Add a background color when the inputs get focus */
+        input[type=text]:focus, input[type=password]:focus,input[type=date]:focus,input[type=file]:focus,input[type=email]:focus {
+            background-color: #ddd;
+            outline: none;
+        }
+
+        /* Set a style for all buttons */
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            opacity: 0.9;
+        }
+
+        button:hover {
+            opacity: 1;
+        }
+
+        /* Extra styles for the cancel button */
+        .cancelbtn {
+            padding: 14px 20px;
+            background-color: #f44336;
+        }
+
+        /* Float cancel and signup buttons and add an equal width */
+        .cancelbtn, .signupbtn {
+            float: left;
+            width: 50%;
+        }
+
+        /* Add padding to container elements */
+        .container {
+            padding: 16px;
+        }
+
+        /* The Modal (background) */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: #474e5d;
+            padding-top: 50px;
+        }
+
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto 15% auto;
+            /* 5% from the top, 15% from the bottom and centered */
+            border: 1px solid #888;
+            width: 80%;
+            /* Could be more or less, depending on screen size */
+        }
+
+        /* Style the horizontal ruler */
+        hr {
+            border: 1px solid #f1f1f1;
+            margin-bottom: 25px;
+        }
+
+        /* The Close Button (x) */
+        .close {
+            position: absolute;
+            right: 35px;
+            top: 15px;
+            font-size: 40px;
+            font-weight: bold;
+            color: #f1f1f1;
+        }
+
+        .close:hover, .close:focus {
+            color: #f44336;
+            cursor: pointer;
+        }
+
+        /* Clear floats */
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        /* Change styles for cancel button and signup button on extra small screens */
+        @media screen and (max-width: 300px) {
+            .cancelbtn, .signupbtn {
+                width: 100%;
+            }
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: url(http://i66.tinypic.com/2nndag.jpg);
+            background-size: cover;
+            background-position: center;
+            font-family: sans-serif;
+        }
+
+        .login-box {
+            width: 320px;
+            height: 420px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            top: 50%;
+            left: 50%;
+            position: absolute;
+            transform: translate(-50%,-50%);
+            box-sizing: border-box;
+            padding: 70px 30px;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            position: absolute;
+            top: -50px;
+            left: calc(50% - 50px);
+        }
+
+        h1 {
+            margin: 0;
+            padding: 0 0 20px;
+            text-align: center;
+            font-size: 22px;
+        }
+
+        .login-box p {
+            margin: 0;
+            padding: 0;
+            font-weight: bold;
+        }
+
+        .login-box input {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .login-box input[type="text"], input[type="password"] {
+            border: none;
+            border-bottom: 1px solid #fff;
+            background: transparent;
+            outline: none;
+            height: 40px;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .login-box input[type="submit"] {
+            border: none;
+            outline: none;
+            height: 40px;
+            background: #1c8adb;
+            color: #fff;
+            font-size: 18px;
+            border-radius: 20px;
+        }
+
+        .login-box input[type="submit"]:hover {
+            cursor: pointer;
+            background: #39dc79;
+            color: #000;
+        }
+
+        .login-box a {
+            text-decoration: none;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .login-box a:hover {
+            color: #39dc79;
+        }
+
+        /* Popup container - can be anything you want */
+.popup {
+    position: relative;
+    display: inline-block;
     cursor: pointer;
-    background: #39dc79;
-    color: #000;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
-.login-box a{
-    text-decoration: none;
-    font-size: 14px;
+/* The actual popup */
+.popup .popuptext {
+    visibility: hidden;
+    width: 500px;
+    background-color: #555;
     color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -80px;
 }
-.login-box a:hover
-{
-    color: #39dc79;
+
+/* Popup arrow */
+.popup .popuptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
 }
 
+/* Toggle this class - hide and show the popup */
+.popup .show {
+    visibility: visible;
+    -webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
+}
 
+/* Add animation (fade in the popup) */
+@-webkit-keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
 
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity:1 ;}
+}
+.button {
+            background-color: #f4511e;
+            border: none;
+            color: white;
+            padding: 16px 32px;
+            text-align: center;
+            font-size: 16px;
+            margin: 4px 2px;
+            opacity: 0.6;
+            transition: 0.3s;
+            display: inline-block;
+            text-decoration: none;
+            cursor: pointer;
+          }
 
-
-
+          .button:hover {opacity: 1}
     </style>
 </head>
 
@@ -232,20 +335,21 @@ h1{
 <div class="login-box">
     <img src="http://i64.tinypic.com/n1w8ip.jpg" class="avatar">
     <h1>Login Here</h1>
-    <form action="" class="form" method="post" name="loginForm" onsubmit="return validate();">
+    <form action="" class="form" method="post" name="loginForm" onsubmit="return validate_in();">
         <p>Username</p>
         <input type="text" name="username" placeholder="Enter Username" required>
         <p>Password</p>
         <input type="password" name="password" placeholder="Enter Password" required>
         <input type="submit" name="submit" value="Login">
-        <a href="#">Forget Password</a>
+        <a href="#" onclick="forgetPasswordButtonClicked();">Forget Password</a>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <a href="#" onclick="document.getElementById('registrationBox').style.display='block'">Sign Up</a>
     </form>
 </div>
+
 <div id="registrationBox" class="modal">
     <span onclick="document.getElementById('registrationBox').style.display='none'" class="close" title="Close Modal">&times;</span>
-    <form class="modal-content" method="post" action="/register">
+    <form class="modal-content" method="post" action="/register" name="signup">
         <div class="container">
             <h1>Sign Up to YH ch</h1>
             <hr>
@@ -285,5 +389,19 @@ h1{
         </div>
     </form>
 </div>
+
+<div id="forgetPassword" class="popup">
+    <span class="popuptext" id="forgetPasswordPopup">
+        <h1>welcom to restart password page</h1>
+        Hellow user! you shuld not be worry at all you can just restart your password in 3 simple steps.
+        <br/>
+        first we need you to enter your userName
+        <br/>
+        <input type="email" placeholder="pleas enter your userName"/>
+        <br/>
+        <button type="submit" class="button">Next</button>
+    </span>
+</div>
+
 </body>
 </html>

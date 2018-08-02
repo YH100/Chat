@@ -1,7 +1,7 @@
 <html>
 <head>
     <title> YH Login Form </title>
-
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.4.2.min.js"></script>
     <script type="text/javascript">
         var modal;
         window.onload = function() {
@@ -30,22 +30,31 @@
         }
 
         function validate_up() {
-            var firstname = window.signup.FirstName.value;
-            var lastname = window.signup.LastName.value;
-            var username = window.signup.username.value;
-            var email = window.signup.email.value;
-            var password = window.signup.psw.value;
-            var passwordrepeat = window.signup.psw-repeat.value;
-            var bday = window.signup.bday.value;
-            var img = window.signup.img.value;
-            window.alert("firstname is " + firstname + "lastname is " + lastname + "userName is " + "userName" )
+            var firstname = document.signup.FirstName.value;
+            var lastname = document.signup.LastName.value;
+            var username = document.signup.username.value;
+            var email = document.signup.email.value;
+            var password = document.signup.psw.value;
+            var passwordrepeat = document.signup.psw-repeat.value;
+            var bday = document.signup.bday.value;
+            var img = document.signup.img.value;
 
-            if ((userName.length < 4) || (password.length < 6))
+
+            if ((userName.length < 4))
             {
-                alert('user name must be at least 4 characters,\nand password must be at least 6 characters');
+                alert('user name must be at least 5 characters');
                 return false;
             }
-
+            if ((password.equals(passwordrepeat)))
+            {
+                alert('Passwords are not the same');
+                return false;
+            }
+            if ((password.equals(passwordrepeat)))
+            {
+                alert('Passwords are not the same');
+                return false;
+            }
             return true;
         }
 
@@ -53,6 +62,27 @@
             var popup = document.getElementById("forgetPasswordPopup");
             popup.classList.toggle("show");
         }
+
+        function passwordRecovery() {
+            myWindow = window.open("https://127.0.0.1:5000/passwordRecoveryStepOne", "password recovery", "width=100, height=100,statusbar=0,menubar=0,toolbar=0");
+        	  myWindow.resizeTo(700, 550);
+            myWindow.focus();
+
+        }
+
+        function showAvatarPopup() {
+            $('.hover_bkgr_fricc').show();
+        }
+
+        function closeAvatarPopup() {
+            $('.hover_bkgr_fricc').hide();
+        }
+
+        function pictureChoose(pictureNumber) {
+            $('#photoNumber')[0].value = pictureNumber;
+            $('.hover_bkgr_fricc').hide();
+        }
+
 
     </script>
 
@@ -170,6 +200,7 @@
                 width: 100%;
             }
         }
+/*http://i66.tinypic.com/2nndag.jpg*/
 
         body {
             margin: 0;
@@ -256,62 +287,7 @@
             color: #39dc79;
         }
 
-        /* Popup container - can be anything you want */
-.popup {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
 
-/* The actual popup */
-.popup .popuptext {
-    visibility: hidden;
-    width: 500px;
-    background-color: #555;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 8px 0;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -80px;
-}
-
-/* Popup arrow */
-.popup .popuptext::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555 transparent transparent transparent;
-}
-
-/* Toggle this class - hide and show the popup */
-.popup .show {
-    visibility: visible;
-    -webkit-animation: fadeIn 1s;
-    animation: fadeIn 1s;
-}
-
-/* Add animation (fade in the popup) */
-@-webkit-keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity: 1;}
-}
-
-@keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity:1 ;}
-}
 .button {
             background-color: #f4511e;
             border: none;
@@ -328,6 +304,64 @@
           }
 
           .button:hover {opacity: 1}
+
+
+
+
+          /* Popup box BEGIN */
+            .hover_bkgr_fricc{
+                cursor:pointer;
+                display:none;
+                height:100%;
+                position:fixed;
+                text-align:center;
+                top:0;
+                width:100%;
+                z-index:10000;
+            }
+            .hover_bkgr_fricc .helper{
+                display:inline-block;
+                height:100%;
+                vertical-align:middle;
+            }
+            .hover_bkgr_fricc > div {
+                background-color: #fff;
+                box-shadow: 10px 10px 60px #555;
+                display: inline-block;
+                height: auto;
+                max-width: 551px;
+                min-height: 100px;
+                vertical-align: middle;
+                width: 60%;
+                position: relative;
+                border-radius: 8px;
+                padding: 15px 5%;
+            }
+            .popupCloseButton {
+                background-color: #fff;
+                border: 3px solid #999;
+                border-radius: 50px;
+                cursor: pointer;
+                display: inline-block;
+                font-family: arial;
+                font-weight: bold;
+                position: absolute;
+                top: -20px;
+                right: -20px;
+                font-size: 25px;
+                line-height: 30px;
+                width: 30px;
+                height: 30px;
+                text-align: center;
+            }
+            /*
+            ul {
+                list-style: none; /* Remove list bullets */
+                padding: 350;
+                margin: 80;
+                }
+            */
+
     </style>
 </head>
 
@@ -341,16 +375,30 @@
         <p>Password</p>
         <input type="password" name="password" placeholder="Enter Password" required>
         <input type="submit" name="submit" value="Login">
-        <a href="#" onclick="forgetPasswordButtonClicked();">Forget Password</a>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="#" onclick="passwordRecovery();">Forget Password</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <a href="#" onclick="document.getElementById('registrationBox').style.display='block'">Sign Up</a>
     </form>
 </div>
 
 <div id="registrationBox" class="modal">
     <span onclick="document.getElementById('registrationBox').style.display='none'" class="close" title="Close Modal">&times;</span>
-    <form class="modal-content" method="post" action="/register" name="signup">
+    <form class="modal-content" method="post" action="/register" name="signup" enctype="multipart/form-data>
         <div class="container">
+            <div class="container-fluid" style = "min-height:100% width:80%">
+
+              {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                  <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+
+
+            </div>
             <h1>Sign Up to YH ch</h1>
             <hr>
 
@@ -375,8 +423,50 @@
             <label for="Birthday"><b>Birthday:</b></label>
             <input type="date" name="bday" required>
 
-            <label for="img"><b>Select avatar image:</b></label>
-            <input type="file" name="img" required>
+            <input type="radio" name="photoSelection" value="select" onclick="showAvatarPopup();"/> Select avator
+            <br/>
+            <input type="radio" name="photoSelection" value="upload" onclick="$('#photoUpload').show();"/> Upload my own
+            photo
+            <label for="photoUpload"><b>Select avatar image:</b></label>
+            <input type="file" name="photoUpload" id="photoUpload" accept="image/*" style="display: none;"/>
+
+            <div class="hover_bkgr_fricc">
+                <span class="helper"></span>
+                <div>
+                    <div class="popupCloseButton" onclick="closeAvatarPopup();">X</div>
+
+                    <input type="hidden" name="photoNumber" id="photoNumber"/>
+                    <table>
+                        <tr>
+                            <td><img src="http://reels.syntheticpictures.com/img/directors/blank-avatar.png" width="100"
+                                     height="100" onclick="pictureChoose(1);"/></td>
+                            <td><img src="http://rotarymeansbusiness.com/wp-content/uploads/avatar-female.png"
+                                     width="100" height="100" onclick="pictureChoose(2);"/></td>
+                            <td><img src="https://www.w3schools.com/howto/img_avatar.png" width="100"
+                                     height="100" onclick="pictureChoose(3);"/></td>
+                            <td><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbtWTxrQPNCQm4hmm0yvs06aGPiboCnpmOfFp-FexbvslTNG5h" width="100"
+                                     height="100" onclick="pictureChoose(4);"/></td>
+                            <td><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNDbeyfZVxA7f9TclbDU6-MCkh60XWWF3rpF0OXvXAVshqt78h" width="100"
+                                     height="100" onclick="pictureChoose(5);"/></td>
+                        </tr>
+                        <tr>
+                            <td><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTL9D0dsfs2LDamDqkrMy3ckK2zVYLiC44ztxS1TI6QgPJIrvVD" width="100"
+                                     height="100" onclick="pictureChoose(6);"/></td>
+                            <td><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU8cqkaylj5eyFTzGTpf6LBFJAOOvpV249ASkChohmAnILcto-vQ" width="100"
+                                     height="100" onclick="pictureChoose(7);"/></td>
+                            <td><img src="https://kiteloft.com/media/catalog/product/cache/1/image/728x/17f82f742ffe127f42dca9de82fb58b1/d/a/davedes2_1.jpg" width="100"
+                                     height="100" onclick="pictureChoose(8);"/></td>
+                            <td><img src="https://www.dailydot.com/wp-content/uploads/617/e8/12717ea046003e9db9972177e7001e0b.jpg" width="100"
+                                     height="100" onclick="pictureChoose(9);"/></td>
+                            <td><img src="http://eduskillsindia.com/images/4G.png" width="100"
+                                     height="100" onclick="pictureChoose(10);"/></td>
+                        </tr>
+                    </table>
+
+
+                </div>
+            </div>
+
 
             <p>By creating an account you agree to our <a href="#" style="color:dodgerblue">Terms & Privacy</a>.</p>
 
@@ -384,23 +474,10 @@
                 <button type="button" onclick="document.getElementById('registrationBox').style.display='none'"
                         class="cancelbtn">Cancel
                 </button>
-                <button type="submit" class="signupbtn">Sign Up</button>
+                <button type="submit" class="signupbtn" onclick="return validate_up()">Sign Up</button>
             </div>
         </div>
     </form>
-</div>
-
-<div id="forgetPassword" class="popup">
-    <span class="popuptext" id="forgetPasswordPopup">
-        <h1>welcom to restart password page</h1>
-        Hellow user! you shuld not be worry at all you can just restart your password in 3 simple steps.
-        <br/>
-        first we need you to enter your userName
-        <br/>
-        <input type="email" placeholder="pleas enter your userName"/>
-        <br/>
-        <button type="submit" class="button">Next</button>
-    </span>
 </div>
 
 </body>

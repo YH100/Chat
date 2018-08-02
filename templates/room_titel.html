@@ -2,27 +2,128 @@
 <html>
 <head>
 <style>
-h1 {
-        width: 100%;
-        padding: 15px;
-        margin: 5px 0 22px 0;
-        display: inline-block;
-        border: none;
-        background: #f1f1f1;
-        text-align: center;
-    }
+#modalContainer {
+	background-color:rgba(0, 0, 0, 0.3);
+	position:absolute;
+  top:0;
+	width:100%;
+	height:100%;
+	left:0px;
+	z-index:10000;
+	background-image:url(tp.png); /* required by MSIE to prevent actions on lower z-index elements */
+}
 
-    /* Add a background color when the inputs get focus */
-h1:focus {
-        background-color: #ddd;
-        outline: none;
-          }
+#alertBox {
+	position:relative;
+	width:33%;
+	min-height:100px;
+  max-height:400px;
+	margin-top:50px;
+	border:1px solid #fff;
+	background-color:#fff;
+	background-repeat:no-repeat;
+  top:30%;
+}
+
+#modalContainer > #alertBox {
+	position:fixed;
+}
+
+#alertBox h1 {
+	margin:0;
+	font:bold 1em Raleway,arial;
+	background-color:#f97352;
+	color:#FFF;
+	border-bottom:1px solid #f97352;
+	padding:10px 0 10px 5px;
+}
+
+#alertBox p {
+	height:50px;
+	padding-left:5px;
+  padding-top:30px;
+  text-align:center;
+  vertical-align:middle;
+}
+
+#alertBox #closeBtn {
+	display:block;
+	position:relative;
+	margin:10px auto 10px auto;
+	padding:7px;
+	border:0 none;
+	width:70px;
+	text-transform:uppercase;
+	text-align:center;
+	color:#FFF;
+	background-color:#f97352;
+	border-radius: 0px;
+	text-decoration:none;
+  outline:0!important;
+}
+
 </style>
+<script>
+    var ALERT_TITLE = "Oops!";
+    var ALERT_BUTTON_TEXT = "Ok";
+
+if(document.getElementById) {
+	window.alert = function(txt) {
+		createCustomAlert(txt);
+	}
+}
+
+function createCustomAlert(txt) {
+	d = document;
+
+	if(d.getElementById("modalContainer")) return;
+
+	mObj = d.getElementsByTagName("body")[0].appendChild(d.createElement("div"));
+	mObj.id = "modalContainer";
+	mObj.style.height = d.documentElement.scrollHeight + "px";
+
+	alertObj = mObj.appendChild(d.createElement("div"));
+	alertObj.id = "alertBox";
+	if(d.all && !window.opera) alertObj.style.top = document.documentElement.scrollTop + "px";
+	alertObj.style.left = (d.documentElement.scrollWidth - alertObj.offsetWidth)/2 + "px";
+	alertObj.style.visiblity="visible";
+
+	h1 = alertObj.appendChild(d.createElement("h1"));
+	h1.appendChild(d.createTextNode(ALERT_TITLE));
+
+	msg = alertObj.appendChild(d.createElement("p"));
+	//msg.appendChild(d.createTextNode(txt));
+	msg.innerHTML = txt;
+
+	btn = alertObj.appendChild(d.createElement("a"));
+	btn.id = "closeBtn";
+	btn.appendChild(d.createTextNode(ALERT_BUTTON_TEXT));
+	btn.href = "#";
+	btn.focus();
+	btn.onclick = function() { removeCustomAlert();return false; }
+
+	alertObj.style.display = "block";
+
+}
+
+function removeCustomAlert() {
+	document.getElementsByTagName("body")[0].removeChild(document.getElementById("modalContainer"));
+}
+
+function ful(){
+alert('Alert this pages');
+}
+
+
+function s(){
+var msg = '147'
+alert(msg);
+}
+
+
+</script>
 </head>
 <body>
-  <p>
-<img src="https://toys.amazingcdn.space/catalog/product/cache/4/image/700x700/9df78eab33525d08d6e5fb8d27136e95/6/4/1497550762-64442202811_3.jpg" style="float:left;width:42px;height:42px;">
-<h1>welcom {{session['userName'] }} for room {{ session['room'] }}</h1>
-</p>
+<input type="button" value = "Test the alert" onclick="s()"/>
 </body>
 </html>

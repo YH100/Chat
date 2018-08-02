@@ -8,12 +8,12 @@
 
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 
     <script type="text/javascript">
-        var userName = '{{ session['userName'] }}';
-        var roomNumber = '{{ session['room'] }}';
+        var userName = '{{ session['userName'] }}';    <!--Save the usename-->
+        var roomNumber = '{{ session['room'] }}';      <!--Save the room-->
+        var userPhoto = '{{ session['userImage'] }}';  <!--Save the user avatar img-->
 
         var CryptoJSAesJson = {
             parse: function(jsonStr) {
@@ -48,6 +48,7 @@
             }
         };
 
+
         window.onload = function() {
             var sendButton = document.getElementById("btnSend");
             sendButton.addEventListener("click", function() {
@@ -55,11 +56,11 @@
                 var message = textElement.value;
                 textElement.value = '';
                 var encryptedMessage = aesObject.encrypt(message);
-                socket.emit('text', {msg: encryptedMessage, userName: userName});
+                socket.emit('text', {msg: encryptedMessage, userName: userName, userPhoto: userPhoto});
             });
         };
 
-        function addNewMessage(message, userThatSentTheMessage) {
+        function addNewMessage(message, userThatSentTheMessage, photoOfTheUserThatSentTheMessage) {
             encrypedMessage = message;
             message = aesObject.decrypt(encrypedMessage)
             message = userThatSentTheMessage + ": " + message;
@@ -73,6 +74,11 @@
             else
                 node.className = "chat friend";
             var innerDiv = document.createElement("div");
+
+            var photo = document.createElement("img");
+            photo.src = photoOfTheUserThatSentTheMessage;
+            innerDiv.appendChild(photo);
+
             innerDiv.className = "user-photo";
             var innerP = document.createElement("p");
             innerP.className = "chat-message";
@@ -109,27 +115,36 @@
             return result;
         }
 
+
     </script>
 
     <script type="text/javascript" charset="utf-8">
         var socket;
         $(document).ready(function(){
-            debugger;
-            socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
+            socket = io.connect('https://' + document.domain + ':' + location.port + '/chat');
+
             socket.on('connect', function() {
                 socket.emit('joined', {});
             });
+
+            socket.on('userlist', function(data) {
+               debugger;
+            });
+
+            socket.on('disconnect', () => {
+                socket.emit('left', {});
+            });
+
             socket.on('status', function(data) {
                 addNewAdminMessage(data.msg);
 
-
-                // $('#chat').val($('#chat').val() + '<' + data.msg + '>\n');
-                // $('#chat').scrollTop($('#chat')[0].scrollHeight);
             });
+
             socket.on('message', function(data) {
-                addNewMessage(data.msg, data.userThatSentTheMessage);
+                addNewMessage(data.msg, data.userThatSentTheMessage, data.photoOfTheUserThatSentTheMessage);
             });
         });
+
         function leave_room() {
             socket.emit('left', {}, function() {
                 socket.disconnect();
@@ -139,15 +154,14 @@
             });
         }
 
-
-
-
-
-
+        window.onbeforeunload = function(){
+            socket.emit('left', {});
+        };
 
     </script>
 
     <style>
+
         * {
             margin: 0;
             padding: 0;
@@ -157,6 +171,9 @@
 
         body {
             background: #1ddced;
+            background: url(https://i.imgur.com/TnNwdvV.jpg);
+            background-size: cover;
+            background-position: center;
         }
 
         .chatbox {
@@ -166,7 +183,8 @@
             background: #fff;
             padding: 25px;
             margin: 20px auto;
-            box-shadow: 0 3px #ccc;
+
+            box-shadow: 0 16px 24px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         }
 
         .chatlogs {
@@ -316,37 +334,151 @@
 }
 
 
+        h1 {
+  font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, "AppleGothic", sans-serif;
+  font-size: 60px;
+  padding: 40px 25px;
+  text-align: center;
+  text-transform: uppercase;
+  text-rendering: optimizeLegibility;
+    color: #e0dfdc;
+    background-color: #333;
+    letter-spacing: .1em;
+    text-shadow:
+      0 -1px 0 #fff,
+      0 1px 0 #2e2e2e,
+      0 2px 0 #2c2c2c,
+      0 3px 0 #2a2a2a,
+      0 4px 0 #282828,
+      0 5px 0 #262626,
+      0 6px 0 #242424,
+      0 7px 0 #222,
+      0 8px 0 #202020,
+      0 9px 0 #1e1e1e,
+      0 10px 0 #1c1c1c,
+      0 11px 0 #1a1a1a,
+      0 12px 0 #181818,
+      0 13px 0 #161616,
+      0 14px 0 #141414,
+      0 15px 0 #121212,
+      0 22px 30px rgba(0, 0, 0, 0.9);
+}
+
+       h2 {
+  font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, "AppleGothic", sans-serif;
+  font-size: 30px;
+  padding: 40px 25px;
+  text-align: center;
+  text-transform: uppercase;
+  text-rendering: optimizeLegibility;
+    color: #e0dfdc;
+    background-color: #333;
+    letter-spacing: .1em;
+    text-shadow:
+      0 -1px 0 #fff,
+      0 1px 0 #2e2e2e,
+      0 2px 0 #2c2c2c,
+      0 3px 0 #2a2a2a,
+      0 4px 0 #282828,
+      0 5px 0 #262626,
+      0 6px 0 #242424,
+      0 7px 0 #222,
+      0 8px 0 #202020,
+      0 9px 0 #1e1e1e,
+      0 10px 0 #1c1c1c,
+      0 11px 0 #1a1a1a,
+      0 12px 0 #181818,
+      0 13px 0 #161616,
+      0 14px 0 #141414,
+      0 15px 0 #121212,
+      0 22px 30px rgba(0, 0, 0, 0.9);
+}
+
+
 
     </style>
 </head>
 <body>
-<center>
-    <h1>Welcome: {{ session['userName'] }}</h1>
-    <br/>
-    <h1>Room Name: {{ session['room'] }}</h1>
-</center>
-<button class="button"><span>Sport</span></button>
+
+<h1>Welcome: {{ session['userName'] }}</h1>
 <br>
-<button class="button"><span>Computer games</span></button>
-<br>
-<button class="button"><span>Food - cooking</span></button>
-<br>
-<button class="button"><span>Theater</span></button>
-<div class="chatbox">
 
-    <div id="chatlogs" class="chatlogs">
+<table>
+    <tr>
+        <td>
+            &nbsp;
+            &nbsp;&nbsp;&nbsp;
+        </td>
+        <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        </td>
+        <td>
+            <form method="post" name="roomForm" action="/change">
+                <input type="hidden" name="roomNumber"/>
+                <button type="submit" class="button" onclick="window.roomForm.roomNumber.value = 1;"><span>Sport</span>
+                </button>
+                <br>
+                <button type="submit" class="button" onclick="window.roomForm.roomNumber.value = 2;"><span>Computer games</span>
+                </button>
+                <br>
+                <button type="submit" class="button" onclick="window.roomForm.roomNumber.value = 3;"><span>Food - cooking</span>
+                </button>
+                <br>
+                <button type="submit" class="button" onclick="window.roomForm.roomNumber.value = 4;">
+                    <span>Theater</span></button>
+            </form>
+        </td>
+        <td>
+            <div class="chatbox">
 
-    </div>
-    <!-- <form action="http://localhost:5000/message" class="form" method="post"> -->
-    <form action="" class="form" method="post" onSubmit="return false">
-        <div class="chat-form">
-            <input id="textfield" placeholder="Write your message here" name="messagefield" type="text">
-            <button id="btnSend">Send</button>
-            <input type="hidden" value="foo" name="user_id"/>
-        </div>
-    </form>
-</div>
+                <div id="chatlogs" class="chatlogs">
 
+                </div>
+                <!-- <form action="http://localhost:5000/message" class="form" method="post"> -->
+                <form action="" class="form" method="post" onSubmit="return false">
+                    <div class="chat-form">
+                        <input id="textfield" placeholder="Write your message here" name="messagefield" type="text">
+                        <button id="btnSend">Send</button>
+                        <input type="hidden" value="foo" name="user_id"/>
+                    </div>
+                </form>
+            </div>
+        </td>
+    </tr>
+</table>
 
+<table id="users">
+    <tr>
+        <td>
+            <script type="text/javascript">
+                /*
+                var chatsDiv = document.getElementById("users");
+
+                var node = document.createElement("div");
+
+                if (userThatSentTheMessage == userName)
+                    node.className = "chat self";
+                else
+                    node.className = "chat friend";
+                var innerDiv = document.createElement("div");
+
+                var photo = document.createElement("img");
+                photo.src = photoOfTheUserThatSentTheMessage;
+                innerDiv.appendChild(photo);
+
+                innerDiv.className = "user-photo";
+                var innerP = document.createElement("p");
+                innerP.className = "chat-message";
+                node.appendChild(innerDiv);
+                node.appendChild(innerP);
+
+                var textNode = document.createTextNode(message);
+                innerP.appendChild(textNode);
+
+                chatsDiv.appendChild(node);
+                */
+            </script>
+        </td>
+    </tr>
 </body>
 </html>

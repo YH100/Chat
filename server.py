@@ -9,6 +9,7 @@ from flask_socketio import SocketIO
 from flask_socketio import emit, join_room, leave_room
 from werkzeug.utils import secure_filename
 from globalVariables import photosMapping
+import ssl
 
 socketio = SocketIO()
 
@@ -221,7 +222,6 @@ def login_root():
                 session['userName'] = user
                 session['room'] = 'Room Number 1'
                 return redirect(url_for('chat'))
-    flash('first')
     return render_template('login.html')
 
 
@@ -250,6 +250,13 @@ def upload():
 
 @app.route("/cheat", methods=['POST', 'GET'])
 def chat():
+    if request.method == 'GET':
+        try:
+            if session['userName'] == '':
+                return redirect(url_for('login_root'))
+        except KeyError:
+            return redirect(url_for('login_root'))
+#        return render_template('login.html')
     msg = request.form
     print msg
     if request.method == 'POST':
@@ -310,21 +317,6 @@ def passwordRecoveryStepThree():
             conn.execute(sql)
         return render_template('recovery3.html')
 
-
-@app.route("/rooms", methods=['POST', 'GET'])
-def rooms():
-    msg = request.form
-    print msg
-
-    if request.method == 'POST':
-        userForm = request.form.to_dict()
-        if len(userForm) != 0:
-            roomNumber = userForm['roomNumber']
-            session['room'] = 'Room Number {0}'.format(roomNumber)
-            return redirect(url_for('chat'))
-    return render_template('rooms.html')
-
-
 @app.route("/register", methods=['POST', 'GET'])
 def register_root():
     if request.method == 'POST':
@@ -353,8 +345,7 @@ def register_root():
         reg = register(FirstName, LastName, username, password, email, bday, img)
         print "tr" + str(reg)
         if (reg):
-            return redirect(url_for('rooms'))
-        flash('secend')
+            return redirect(url_for('chat'))
         return redirect(url_for('login_root'))
 
 
@@ -364,11 +355,12 @@ def register_root():
 # -------------------- Routes --------------------
 
 if __name__ == '__main__':
-    import ssl
-
     context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
     context.load_cert_chain('ssl.cert', 'ssl.key')
     socketio.init_app(app)
     #  , threaded=True
-    socketio.run(app, host='0.0.0.0', port=5000, ssl_context=context)
+    try:
+        socketio.run(app, host='0.0.0.0', port=5000, ssl_context=context, use_reloader = False)
+    except:
+        print "****************************************************   flask tried    ***************************************************************************"
     # app.run(host='0.0.0.0', port=5000)

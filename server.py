@@ -329,7 +329,7 @@ def register_root():
         LastName = request.form['LastName']
         email = request.form['email']
         password = request.form['psw']
-
+        passwordrpt = request.form['psw_repeat']
         if (request.form['photoSelection'] == 'select'):
             photoNumberTheUserChoose = request.form['photoNumber']
             img = photoNumberTheUserChoose
@@ -341,12 +341,47 @@ def register_root():
                 # uploadedFile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 uploadedFile.save(app.root_path + app.config['UPLOAD_FOLDER'] + filename)
                 img = filename
-
+        print "type bday"
+        print type(bday)
         reg = register(FirstName, LastName, username, password, email, bday, img)
         print "tr" + str(reg)
         if (reg):
             return redirect(url_for('chat'))
         return redirect(url_for('login_root'))
+
+def Validation(username, password, passwordrpt, FirstName, LastName, bday, email):
+    psss = True
+    if len(username) < 5:
+        return False
+
+    with sqlite3.connect("project2018.db") as conn:
+        find = conn.execute(
+            "SELECT * FROM reg_users WHERE username = '{0}'".format(username))
+        userData = find.fetchall()
+    if len(userData) > 0:
+        return False
+
+    with sqlite3.connect("project2018.db") as conn:
+        find = conn.execute(
+            "SELECT * FROM reg_users WHERE email = '{0}'".format(email))
+        userData = find.fetchall()
+    if len(userData) > 0:
+        return False
+    if len(password) < 7:
+        return False
+    if password != passwordrpt:
+        return False
+    string_with_leter = password.isupper() or password.islower()
+    if string_with_leter != True:
+        return False
+        string_with_number = any(i.isdigit() for i in s)
+    if string_with_number != True:
+        return False
+    year = bday[:bday.index('-')]
+    bday = bday[bday.index('-')+1:]
+    month = bday[:bday.index('-')]
+    day = bday
+
 
 
 # context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
@@ -359,8 +394,5 @@ if __name__ == '__main__':
     context.load_cert_chain('ssl.cert', 'ssl.key')
     socketio.init_app(app)
     #  , threaded=True
-    try:
-        socketio.run(app, host='0.0.0.0', port=5000, ssl_context=context, use_reloader = False)
-    except:
-        print "****************************************************   flask tried    ***************************************************************************"
+    socketio.run(app, host='0.0.0.0', port=5000, ssl_context=context)
     # app.run(host='0.0.0.0', port=5000)

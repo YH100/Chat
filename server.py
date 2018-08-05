@@ -2,6 +2,7 @@ import os
 import smtplib
 import sqlite3
 from random import randint
+import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import session
@@ -317,6 +318,8 @@ def passwordRecoveryStepThree():
             conn.execute(sql)
         return render_template('recovery3.html')
 
+@app.route("/sighnup", methods=['POST', 'GET'])
+
 @app.route("/register", methods=['POST', 'GET'])
 def register_root():
     if request.method == 'POST':
@@ -349,9 +352,9 @@ def register_root():
             return redirect(url_for('chat'))
         return redirect(url_for('login_root'))
 
-def Validation(username, password, passwordrpt, FirstName, LastName, bday, email):
-    psss = True
+def validation(username, password, passwordrpt, FirstName, LastName, bday, email):
     if len(username) < 5:
+        flash("username need to be 5 ")
         return False
 
     with sqlite3.connect("project2018.db") as conn:
@@ -359,28 +362,84 @@ def Validation(username, password, passwordrpt, FirstName, LastName, bday, email
             "SELECT * FROM reg_users WHERE username = '{0}'".format(username))
         userData = find.fetchall()
     if len(userData) > 0:
+        flash("username token ")
         return False
 
     with sqlite3.connect("project2018.db") as conn:
         find = conn.execute(
             "SELECT * FROM reg_users WHERE email = '{0}'".format(email))
         userData = find.fetchall()
+
     if len(userData) > 0:
+        print 1
+        flash("mailtoken ")
         return False
+
     if len(password) < 7:
+        print 2
+        flash("len password ")
         return False
+
     if password != passwordrpt:
+        print 3
+        flash("password not the same ")
         return False
+
     string_with_leter = password.isupper() or password.islower()
+
     if string_with_leter != True:
+        print 4
+        flash("password withuot letter ")
         return False
-        string_with_number = any(i.isdigit() for i in s)
+
+    string_with_number = any(i.isdigit() for i in password)
+
     if string_with_number != True:
+        print 5
+        flash("password withuot num ")
         return False
+
     year = bday[:bday.index('-')]
-    bday = bday[bday.index('-')+1:]
+    bday = bday[bday.index('-') + 1:]
     month = bday[:bday.index('-')]
-    day = bday
+    day = bday[bday.index('-') + 1:]
+    now = datetime.datetime.now()
+
+    if int(now.year) - int(year) < 14:
+        print 6
+        if int(now.month) - int(month) <= 0:
+            print 7
+            if int(now.day) - int(day) < 0:
+                print 8
+                flash("age not 14 ")
+                return False
+
+    if len(FirstName) < 1:
+        print 9
+        flash("len First name ")
+        return False
+
+    FirstName_with_number = any(i.isdigit() for i in FirstName)
+
+    if FirstName_with_number:
+        print 10
+        flash("Firstname with number ")
+        return False
+
+    if len(LastName) < 1:
+        print 11
+        flash("lan Lastname ")
+        return False
+
+    LastName_with_number = any(i.isdigit() for i in LastName)
+
+    if LastName_with_number:
+        print 12
+        flash("lastname with number ")
+        return False
+
+    return True
+
 
 
 

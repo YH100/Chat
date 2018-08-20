@@ -8,27 +8,22 @@
             // Get the modal
             modal = document.getElementById('registrationBox');
         }
-
         // When the user clicks anywhere outside of the modal, close it
         window.onclick = function(event) {
             if (event.target == modal) {
                 modal.style.display = "none";
             }
         }
-
         function validate_in() {
             var userName = window.loginForm.username.value;
             var password = window.loginForm.password.value;
-
             if ((userName.length < 4) || (password.length < 6))
             {
                 alert('user name must be at least 4 characters,\nand password must be at least 6 characters');
                 return false;
             }
-
             return true;
         }
-
         function validate_up() {
             var firstname = document.signup.FirstName.value;
             var lastname = document.signup.LastName.value;
@@ -38,10 +33,8 @@
             var passwordrepeat = document.signup.psw-repeat.value;
             var bday = document.signup.bday.value;
             var img = document.signup.img.value;
-
-
             if ((userName.length < 4))
-            {ְ
+            {
                 alert('user name must be at least 5 characters');
                 return false;
             }
@@ -57,38 +50,58 @@
             }
             return true;
         }
-
         function forgetPasswordButtonClicked() {
             var popup = document.getElementById("forgetPasswordPopup");
             popup.classList.toggle("show");
         }
-
         function passwordRecovery() {
             myWindow = window.open("https://127.0.0.1:5000/passwordRecoveryStepOne", "password recovery", "width=100, height=100,statusbar=0,menubar=0,toolbar=0");
         	  myWindow.resizeTo(700, 550);
             myWindow.focus();
-
         }
-
         function showAvatarPopup() {
             $('.hover_bkgr_fricc').show();
         }
-
         function closeAvatarPopup() {
             $('.hover_bkgr_fricc').hide();
         }
-
         function pictureChoose(pictureNumber) {
             $('#photoNumber')[0].value = pictureNumber;
             $('.hover_bkgr_fricc').hide();
         }
-
-
     </script>
 
     <style>
+
+
+    .alert {
+    padding: 20px;
+    background-color: #f44336;
+    color: white;
+}
+
+.closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.closebtn:hover {
+    color: black;
+}
+
+
+
+
+
+
         /* Full-width input fields */
-        input[type=text], input[type=password],input[type=date],input[type=file],input[type=email] {
+        input[type=text], input[type=password], input[type=date],input[type=file],input[type=email] {
             width: 100%;
             padding: 15px;
             margin: 5px 0 22px 0;
@@ -96,13 +109,11 @@
             border: none;
             background: #f1f1f1;
         }
-
         /* Add a background color when the inputs get focus */
-        input[type=text]:focus, input[type=password]:focus,input[type=date]:focus,input[type=file]:focus,input[type=email]:focus {
+        input[type=text]:focus, input[type=password]:focus, input[type=date]:focus,input[type=file]:focus,input[type=email]:focus {
             background-color: #ddd;
             outline: none;
         }
-
         /* Set a style for all buttons */
         button {
             background-color: #4CAF50;
@@ -114,28 +125,23 @@
             width: 100%;
             opacity: 0.9;
         }
-
         button:hover {
             opacity: 1;
         }
-
         /* Extra styles for the cancel button */
         .cancelbtn {
             padding: 14px 20px;
             background-color: #f44336;
         }
-
         /* Float cancel and signup buttons and add an equal width */
         .cancelbtn, .signupbtn {
             float: left;
             width: 50%;
         }
-
         /* Add padding to container elements */
         .container {
             padding: 16px;
         }
-
         /* The Modal (background) */
         .modal {
             display: none;
@@ -155,7 +161,6 @@
             background-color: #474e5d;
             padding-top: 50px;
         }
-
         /* Modal Content/Box */
         .modal-content {
             background-color: #fefefe;
@@ -165,13 +170,11 @@
             width: 80%;
             /* Could be more or less, depending on screen size */
         }
-
         /* Style the horizontal ruler */
         hr {
             border: 1px solid #f1f1f1;
             margin-bottom: 25px;
         }
-
         /* The Close Button (x) */
         .close {
             position: absolute;
@@ -181,19 +184,16 @@
             font-weight: bold;
             color: #f1f1f1;
         }
-
         .close:hover, .close:focus {
             color: #f44336;
             cursor: pointer;
         }
-
         /* Clear floats */
         .clearfix::after {
             content: "";
             clear: both;
             display: table;
         }
-
         /* Change styles for cancel button and signup button on extra small screens */
         @media screen and (max-width: 300px) {
             .cancelbtn, .signupbtn {
@@ -201,16 +201,14 @@
             }
         }
 /*http://i66.tinypic.com/2nndag.jpg*/
-
         body {
             margin: 0;
             padding: 0;
-            background: url(https://www.w3schools.com/howto/img_avatar.png);  /*http://i66.tinypic.com/2nndag.jpg*/
+            background-image: url({{ url_for('static', filename='img/log_in_back.jpg') }});
             background-size: cover;
             background-position: center;
             font-family: sans-serif;
         }
-
         .login-box {
             width: 320px;
             height: 420px;
@@ -223,7 +221,6 @@
             box-sizing: border-box;
             padding: 70px 30px;
         }
-
         .avatar {
             width: 100px;
             height: 100px;
@@ -232,25 +229,21 @@
             top: -50px;
             left: calc(50% - 50px);
         }
-
         h1 {
             margin: 0;
             padding: 0 0 20px;
             text-align: center;
             font-size: 22px;
         }
-
         .login-box p {
             margin: 0;
             padding: 0;
             font-weight: bold;
         }
-
         .login-box input {
             width: 100%;
             margin-bottom: 20px;
         }
-
         .login-box input[type="text"], input[type="password"] {
             border: none;
             border-bottom: 1px solid #fff;
@@ -260,7 +253,6 @@
             color: #fff;
             font-size: 16px;
         }
-
         .login-box input[type="submit"] {
             border: none;
             outline: none;
@@ -270,24 +262,19 @@
             font-size: 18px;
             border-radius: 20px;
         }
-
         .login-box input[type="submit"]:hover {
             cursor: pointer;
             background: #39dc79;
             color: #000;
         }
-
         .login-box a {
             text-decoration: none;
             font-size: 14px;
             color: #fff;
         }
-
         .login-box a:hover {
             color: #39dc79;
         }
-
-
 .button {
             background-color: #f4511e;
             border: none;
@@ -302,12 +289,7 @@
             text-decoration: none;
             cursor: pointer;
           }
-
           .button:hover {opacity: 1}
-
-
-
-
           /* Popup box BEGIN */
             .hover_bkgr_fricc{
                 cursor:pointer;
@@ -361,13 +343,33 @@
                 margin: 80;
                 }
             */
-
     </style>
+
+
 </head>
 
 <body>
+
+
 <div class="login-box">
-    <img src="https://www.w3schools.com/howto/img_avatar.png " class="avatar">  /*http://i64.tinypic.com/n1w8ip.jpg */
+
+    <div class="container-fluid" style = "min-height:100% width:80%">
+
+              {% with messages = get_flashed_messages(category_filter=["category1"]) %}
+              {% if messages %}
+                <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                {% for message in messages %}
+                  <strong>{{ message }}</strong>
+                {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+
+            </div>
+    <img src="http://i64.tinypic.com/n1w8ip.jpg" class="avatar">
+
     <h1>Login Here</h1>
     <form action="" class="form" method="post" name="loginForm" onsubmit="return validate_in();">
         <p>Username</p>
@@ -383,23 +385,26 @@
 
 <div id="registrationBox" class="modal">
     <span onclick="document.getElementById('registrationBox').style.display='none'" class="close" title="Close Modal">&times;</span>
-    <form class="modal-content" method="post" action="/register" name="signup" enctype="multipart/form-data>
-        <div class="container">
+    <form class="modal-content" method="post" action="/register" name="signup" enctype="multipart/form-data">
             <div class="container-fluid" style = "min-height:100% width:80%">
 
-              {% with messages = get_flashed_messages() %}
+              {% with messages = get_flashed_messages(category_filter=["category2"]) %}
               {% if messages %}
-                <ul class=flashes>
+                <div class="alert">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                    <ul>
                 {% for message in messages %}
-                  <li>{{ message }}</li>
+                  <li><strong>{{ message }}</strong></li>
                 {% endfor %}
-                </ul>
+                        </ul>
+                </div>
               {% endif %}
             {% endwith %}
 
 
             </div>
-            <h1>Sign Up to YH ch</h1>
+
+            <h1>Sign Up to YH chat</h1>
             <hr>
 
             <label for="FirstName"><b>First name</b></label>
@@ -418,17 +423,13 @@
             <input type="password" placeholder="Enter Password" name="psw" required>
 
             <label for="psw-repeat"><b>Repeat Password</b></label>
-            <input type="password" placeholder="Repeat Password" name="psw-repeat" required>
+            <input type="password" placeholder="Repeat Password" name="psw_repeat" required>
 
             <label for="Birthday"><b>Birthday:</b></label>
             <input type="date" name="bday" required>
 
-            <input type="radio" name="photoSelection" value="select" onclick="showAvatarPopup();"/> Select avator
+            <input type="radio" name="photoSelection" value="select" onclick="showAvatarPopup();" required> Select avator
             <br/>
-            <input type="radio" name="photoSelection" value="upload" onclick="$('#photoUpload').show();"/> Upload my own
-            photo
-            <label for="photoUpload"><b>Select avatar image:</b></label>
-            <input type="file" name="photoUpload" id="photoUpload" accept="image/*" style="display: none;"/>
 
             <div class="hover_bkgr_fricc">
                 <span class="helper"></span>
@@ -438,9 +439,9 @@
                     <input type="hidden" name="photoNumber" id="photoNumber"/>
                     <table>
                         <tr>
-                            <td><img src="https://www.w3schools.com/howto/img_avatar.png" width="100"
+                            <td><img src="http://reels.syntheticpictures.com/img/directors/blank-avatar.png" width="100"
                                      height="100" onclick="pictureChoose(1);"/></td>
-                            <td><img src="https://www.w3schools.com/howto/img_avatar.png"
+                            <td><img src="http://rotarymeansbusiness.com/wp-content/uploads/avatar-female.png"
                                      width="100" height="100" onclick="pictureChoose(2);"/></td>
                             <td><img src="https://www.w3schools.com/howto/img_avatar.png" width="100"
                                      height="100" onclick="pictureChoose(3);"/></td>
@@ -458,7 +459,7 @@
                                      height="100" onclick="pictureChoose(8);"/></td>
                             <td><img src="https://www.dailydot.com/wp-content/uploads/617/e8/12717ea046003e9db9972177e7001e0b.jpg" width="100"
                                      height="100" onclick="pictureChoose(9);"/></td>
-                            <td><img src="https://www.w3schools.com/howto/img_avatar.png" width="100"
+                            <td><img src="http://eduskillsindia.com/images/4G.png" width="100"
                                      height="100" onclick="pictureChoose(10);"/></td>
                         </tr>
                     </table>
@@ -476,9 +477,8 @@
                 </button>
                 <button type="submit" class="signupbtn" onclick="return validate_up()">Sign Up</button>
             </div>
-        </div>
+
     </form>
 </div>
-
 </body>
 </html>

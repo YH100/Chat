@@ -3,7 +3,6 @@ import smtplib
 import sqlite3
 from random import randint
 import datetime
-
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import session
 from flask_socketio import SocketIO
@@ -12,52 +11,69 @@ from werkzeug.utils import secure_filename
 from globalVariables import photosMapping
 import ssl
 
+# 'Defines a variable that can be used for SocketIO library '
 socketio = SocketIO()
 
+# ' Set a variable that can be used for Flask library '
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'gjr39dkjn344_!67#'
-app.debug = True
 
+# ' config the secreat key for the flask app '
+app.config['SECRET_KEY'] = 'gjr39dkjn344_!67#'
+
+#app.debug = True
+
+# ' Set the app path for saving clients img
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 PHOTOS_UPLOAD_FOLDER = '\static\photos\\'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 app.config['UPLOAD_FOLDER'] = PHOTOS_UPLOAD_FOLDER
 
-ip_to_user = {}
+# ' Set the user list in each room'
+# ' Room 1 is the list for the sport room, room 2 is the list for the computer games, room 3 is the list for the food
 room_1_lst = []
 room_2_lst = []
 room_3_lst = []
 room_4_lst = []
 
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-
-# print(request.remote_addr)
 
 #  -------------------- Socket IO Events --------------------
+
+#'****************************************************************************************************************'
+#'**                                                                                                            **'
+#'** The joined socketio function send a A status message is broadcast to all people in the room                **'
+#'**                                                                                                            **'
+#'** receive message by clients when they enter a room. --> broadcast status messsage to all people in the room **'
+#'**                                                                                                            **'
+#'****************************************************************************************************************'
 @socketio.on('joined', namespace='/chat')
 def joined(message):
-    """Sent by clients when they enter a room.
-    A status message is broadcast to all people in the room."""
+# ' Take the room number for the user who send the message'
     room = session.get('room')
-    print room
+# ' Take the username  for the user who send the message'
     user = session['userName']
+# ' Take the img for the user who send the message'
     img = session['userImage']
-    print user
+    print "--------------- The user {0} has enter to{1} ---------------".format(user, room_1_lst)
+#' set a virble
     userListToEmit = None
+    new_user = (user,img)
     if room == "Room Number 1":
-        room_1_lst.append((user, img))
+        if new_user not in room_1_lst:
+            room_1_lst.append((user, img))
         userListToEmit = room_1_lst
     elif room == "Room Number 2":
-        room_2_lst.append((user, img))
+        if new_user not in room_2_lst:
+            room_2_lst.append((user, img))
         userListToEmit = room_2_lst
     elif room == "Room Number 3":
-        room_3_lst.append((user, img))
+        if new_user not in room_3_lst:
+            room_3_lst.append((user, img))
         userListToEmit = room_3_lst
     elif room == "Room Number 4":
-        room_4_lst.append((user, img))
+        if new_user not in room_4_lst:
+            room_4_lst.append((user, img))
         userListToEmit = room_4_lst
 
     print 'Room 1 users: {0}'.format(room_1_lst)
@@ -70,7 +86,6 @@ def joined(message):
 
     if userListToEmit is not None:
         emit('userlist', {'userList': userListToEmit}, room=room)
-
 
 @socketio.on('left', namespace='/chat')
 def left(message):
@@ -124,13 +139,24 @@ def text(message):
 
 #  -------------------- Socket IO Events --------------------
 
+#**************************************************************************
+#**                                                                      **
+#** The allowed_file function cheak if the file name is proper           **
+#**                                                                      **
+#** receive the full filename --> return true if the file type is proper **
+#**                                                                      **
+#**************************************************************************
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
 def login(username, password):
     if username == 'Admin' and password == '123456':
         return True
     with sqlite3.connect("project2018.db") as conn:
         # find = conn.execute("SELECT * FROM users WHERE username = '{0}' AND password = {1}".format(username, password))
         find = conn.execute(
-            "SELECT * FROM reg_users WHERE username = '{0}' AND password = {1}".format(username, password))
+            "SELECT * FROM reg_users WHERE username = '{0}' AND password = '{1}'".format(username, password))
         userData = find.fetchall()
         if len(userData) > 0:
             if userData[0][6] not in photosMapping:
@@ -138,6 +164,7 @@ def login(username, password):
             else:
                 session['userImage'] = photosMapping[userData[0][6]];
             return True
+        flash("Incorrect username or password")
         return False
     return Flase
 
@@ -205,6 +232,12 @@ def generat_code(mailadd):
 
 
 # -------------------- Routes --------------------
+@app.route("/log_out", methods=['POST', 'GET'])
+def log_out():
+    session.clear()
+    return redirect(url_for('login_root'))
+
+
 @app.route("/", methods=['POST', 'GET'])
 def login_root():
     if request.method == 'POST':
@@ -220,9 +253,17 @@ def login_root():
 
             secss_login = login(user, password)
             if secss_login == True:
+                session['logged_in'] = True
                 session['userName'] = user
                 session['room'] = 'Room Number 1'
                 return redirect(url_for('chat'))
+            else:
+                flash("Username or password incorrect", 'category1')
+    if session.get('logged_in'):
+        print session.get('logged_in')
+        if session['logged_in'] == True:
+            return redirect(url_for('chat'))
+
     return render_template('login.html')
 
 
@@ -318,14 +359,26 @@ def passwordRecoveryStepThree():
             conn.execute(sql)
         return render_template('recovery3.html')
 
-@app.route("/sighnup", methods=['POST', 'GET'])
+
+@app.route("/rooms", methods=['POST', 'GET'])
+def rooms():
+    msg = request.form
+    print msg
+
+    if request.method == 'POST':
+        userForm = request.form.to_dict()
+        if len(userForm) != 0:
+            roomNumber = userForm['roomNumber']
+            session['room'] = 'Room Number {0}'.format(roomNumber)
+            return redirect(url_for('chat'))
+    return render_template('rooms.html')
+
 
 @app.route("/register", methods=['POST', 'GET'])
 def register_root():
     if request.method == 'POST':
         userform = request.form.to_dict()
         print userform
-
         username = request.form['username']
         FirstName = request.form['FirstName']
         bday = request.form['bday']
@@ -344,26 +397,30 @@ def register_root():
                 # uploadedFile.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 uploadedFile.save(app.root_path + app.config['UPLOAD_FOLDER'] + filename)
                 img = filename
-        print "type bday"
-        print type(bday)
-        reg = register(FirstName, LastName, username, password, email, bday, img)
-        print "tr" + str(reg)
+        val = validation(username, password, passwordrpt, FirstName, LastName, bday, email)
+        reg = False
+        if val:
+            reg = register(FirstName, LastName, username, password, email, bday, img)
         if (reg):
-            return redirect(url_for('chat'))
+            flash("Your account has been successfully registered", 'category1')
+            return redirect(url_for('login_root'))
+        flash("data wrong go to reg page")
         return redirect(url_for('login_root'))
 
+
 def validation(username, password, passwordrpt, FirstName, LastName, bday, email):
+    pas = True
     if len(username) < 5:
-        flash("username need to be 5 ")
-        return False
+        flash("Username must be at least 5 characters long", 'category2')
+        pas = False
 
     with sqlite3.connect("project2018.db") as conn:
         find = conn.execute(
             "SELECT * FROM reg_users WHERE username = '{0}'".format(username))
         userData = find.fetchall()
     if len(userData) > 0:
-        flash("username token ")
-        return False
+        flash("That username is already taken.", 'category2')
+        pas = False
 
     with sqlite3.connect("project2018.db") as conn:
         find = conn.execute(
@@ -372,32 +429,32 @@ def validation(username, password, passwordrpt, FirstName, LastName, bday, email
 
     if len(userData) > 0:
         print 1
-        flash("mailtoken ")
-        return False
+        flash("There is an account under this mail. If you forget the password, you can reset it on the login page", 'category2')
+        pas = False
 
     if len(password) < 7:
         print 2
-        flash("len password ")
-        return False
+        flash("Password must be at least 8 characters long", 'category2')
+        pas = False
 
     if password != passwordrpt:
         print 3
-        flash("password not the same ")
-        return False
+        flash("Passwords do not match", 'category2')
+        pas = False
 
     string_with_leter = password.isupper() or password.islower()
 
     if string_with_leter != True:
         print 4
-        flash("password withuot letter ")
-        return False
+        flash("Passwords must contain characters", 'category2')
+        pas = False
 
     string_with_number = any(i.isdigit() for i in password)
 
     if string_with_number != True:
         print 5
-        flash("password withuot num ")
-        return False
+        flash("Passwords must contain numbers", 'category2')
+        pas = False
 
     year = bday[:bday.index('-')]
     bday = bday[bday.index('-') + 1:]
@@ -411,47 +468,52 @@ def validation(username, password, passwordrpt, FirstName, LastName, bday, email
             print 7
             if int(now.day) - int(day) < 0:
                 print 8
-                flash("age not 14 ")
-                return False
+                flash("Minimum enrollment age is 14", 'category2')
+                pas = False
+        else:
+            flash("Minimum enrollment age is 14 ", 'category2')
+            pas = False
+    else:
+        flash("Minimum enrollment age is 14", 'category2')
 
     if len(FirstName) < 1:
         print 9
-        flash("len First name ")
-        return False
+        flash("The length of the first name must be at least 2 characters long ", 'category2')
+        pas = False
 
     FirstName_with_number = any(i.isdigit() for i in FirstName)
 
     if FirstName_with_number:
         print 10
-        flash("Firstname with number ")
-        return False
+        flash("The first name can contain only letters ", 'category2')
+        pas = False
 
     if len(LastName) < 1:
         print 11
-        flash("lan Lastname ")
-        return False
+        flash("The length of the last name must be at least 2 characters long  ", 'category2')
+        pas = False
 
     LastName_with_number = any(i.isdigit() for i in LastName)
 
     if LastName_with_number:
         print 12
-        flash("lastname with number ")
-        return False
+        flash("The last name can contain only letters", 'category2')
+        pas = False
 
-    return True
+    if pas != True:
+        flash("There are some issues with registry details. In order to register you need to fix them", 'category1')
+
+    return pas
 
 
 
 
-# context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-# context.use_privatekey_file('server.key')
-# context.use_certificate_file('server.crt')
+
+
 # -------------------- Routes --------------------
 
 if __name__ == '__main__':
     context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
     context.load_cert_chain('ssl.cert', 'ssl.key')
     socketio.init_app(app)
-    #  , threaded=True
     socketio.run(app, host='0.0.0.0', port=5000, ssl_context=context)
-    # app.run(host='0.0.0.0', port=5000)

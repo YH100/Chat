@@ -10,6 +10,9 @@ from flask_socketio import emit, join_room, leave_room
 from werkzeug.utils import secure_filename
 from globalVariables import photosMapping
 import ssl
+import hashlib
+
+# region Server Initialization
 
 # 'Defines a variable that can be used for SocketIO library '
 socketio = SocketIO()
@@ -20,13 +23,17 @@ app = Flask(__name__)
 # ' config the secreat key for the flask app '
 app.config['SECRET_KEY'] = 'gjr39dkjn344_!67#'
 
-#app.debug = True
+app.debug = True
 
 # ' Set the app path for saving clients img
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 PHOTOS_UPLOAD_FOLDER = '\static\photos\\'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 app.config['UPLOAD_FOLDER'] = PHOTOS_UPLOAD_FOLDER
+SERVER_SALT = '12345qwert!@#$%'
+DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+# endregion
 
 # ' Set the user list in each room'
 # ' Room 1 is the list for the sport room, room 2 is the list for the computer games, room 3 is the list for the food
@@ -36,29 +43,28 @@ room_3_lst = []
 room_4_lst = []
 
 
-
-
+# region Socketio
 #  -------------------- Socket IO Events --------------------
 
-#'****************************************************************************************************************'
-#'**                                                                                                            **'
-#'** The joined socketio function send a A status message is broadcast to all people in the room                **'
-#'**                                                                                                            **'
-#'** receive message by clients when they enter a room. --> broadcast status messsage to all people in the room **'
-#'**                                                                                                            **'
-#'****************************************************************************************************************'
+# '****************************************************************************************************************'
+# '**                                                                                                            **'
+# '** The joined socketio function send a A status message is broadcast to all people in the room                **'
+# '**                                                                                                            **'
+# '** receive message by clients when they enter a room. --> broadcast status messsage to all people in the room **'
+# '**                                                                                                            **'
+# '****************************************************************************************************************'
 @socketio.on('joined', namespace='/chat')
 def joined(message):
-# ' Take the room number for the user who send the message'
+    # ' Take the room number for the user who send the message'
     room = session.get('room')
-# ' Take the username  for the user who send the message'
+    # ' Take the username  for the user who send the message'
     user = session['userName']
-# ' Take the img for the user who send the message'
+    # ' Take the img for the user who send the message'
     img = session['userImage']
     print "--------------- The user {0} has enter to{1} ---------------".format(user, room_1_lst)
-#' set a virble
+    # ' set a virble
     userListToEmit = None
-    new_user = (user,img)
+    new_user = (user, img)
     if room == "Room Number 1":
         if new_user not in room_1_lst:
             room_1_lst.append((user, img))
@@ -86,6 +92,7 @@ def joined(message):
 
     if userListToEmit is not None:
         emit('userlist', {'userList': userListToEmit}, room=room)
+
 
 @socketio.on('left', namespace='/chat')
 def left(message):
@@ -137,26 +144,32 @@ def text(message):
     }, room=room)
 
 
+# endregion
+
 #  -------------------- Socket IO Events --------------------
 
-#**************************************************************************
-#**                                                                      **
-#** The allowed_file function cheak if the file name is proper           **
-#**                                                                      **
-#** receive the full filename --> return true if the file type is proper **
-#**                                                                      **
-#**************************************************************************
+# **************************************************************************
+# **                                                                      **
+# ** The allowed_file function cheak if the file name is proper           **
+# **                                                                      **
+# ** receive the full filename --> return true if the file type is proper **
+# **                                                                      **
+# **************************************************************************
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
+
 def login(username, password):
     if username == 'Admin' and password == '123456':
         return True
+
+    hashedPassword = getHashedPassword(password)
+
     with sqlite3.connect("project2018.db") as conn:
         # find = conn.execute("SELECT * FROM users WHERE username = '{0}' AND password = {1}".format(username, password))
         find = conn.execute(
-            "SELECT * FROM reg_users WHERE username = '{0}' AND password = '{1}'".format(username, password))
+            "SELECT * FROM reg_users WHERE username = '{0}' AND password = '{1}'".format(username, hashedPassword))
         userData = find.fetchall()
         if len(userData) > 0:
             if userData[0][6] not in photosMapping:
@@ -170,6 +183,7 @@ def login(username, password):
 
 
 def register(firstname, lastname, username, password, email, birth, img):
+    hashedPassword = getHashedPassword(password)
     with sqlite3.connect("project2018.db") as conn:
         conn.execute('''CREATE TABLE IF NOT EXISTS reg_users
                         (firstname       TEXT    NOT NULL,
@@ -181,10 +195,16 @@ def register(firstname, lastname, username, password, email, birth, img):
                          img             TEXT    NOT NULL);''')
         try:
             conn.execute("INSERT INTO reg_users VALUES (?, ?, ?, ?, ?, ?, ?);",
-                         (firstname, lastname, username, password, email, birth, img))
+                         (firstname, lastname, username, hashedPassword, email, birth, img))
             return True
         except sqlite3.IntegrityError:
             return False
+
+
+def getHashedPassword(password):
+    m = hashlib.md5()
+    m.update('{originalPassword}{salt}'.format(originalPassword=password, salt=SERVER_SALT))
+    return m.hexdigest()
 
 
 def send_restart_passmail(mailadd):
@@ -193,7 +213,6 @@ def send_restart_passmail(mailadd):
         print "mail adres not corect"
         return False
     content = "your six digit password is " + str(sixdigt)
-    generat_code(mailadd)
     try:
         mail = smtplib.SMTP('smtp.gmail.com', 587)
         mail.ehlo()
@@ -211,26 +230,24 @@ def generat_code(mailadd):
     with sqlite3.connect("project2018.db") as conn:
         # find = conn.execute("SELECT * FROM users WHERE username = '{0}' AND password = {1}".format(username, password))
         sqls = "SELECT username, email FROM reg_users WHERE email = '{0}'".format(mailadd)
-        print "sqls " + sqls
         find = conn.execute(sqls)
         result = find.fetchall()
         if len(result) > 0:
-            print "six digit 1 "
-            print sixdigt
-            print request.remote_addr
             with sqlite3.connect("project2018.db") as conn:
                 conn.execute('''CREATE TABLE IF NOT EXISTS restart_password_cods
-                         (username TEXT NOT NULL,
-                          email TEXT NOT NULL,
-                          reset int NOT NULL);''')
-                conn.execute("INSERT INTO restart_password_cods VALUES (?, ?, ?);",
-                             (result[0][0], result[0][1], sixdigt))
+                                (username  TEXT    NOT NULL,
+                                 email     TEXT    NOT NULL,
+                                 reset     int     NOT NULL,
+                                 created   TEXT    NOT NULL);''')
+                conn.execute("INSERT INTO restart_password_cods VALUES (?, ?, ?, ?);",
+                             (result[0][0], result[0][1], sixdigt, datetime.datetime.now().strftime(DATE_TIME_FORMAT)))
                 print "sixd digit 2 "
                 print sixdigt
                 return sixdigt
         return False
 
 
+# region Routes
 # -------------------- Routes --------------------
 @app.route("/log_out", methods=['POST', 'GET'])
 def log_out():
@@ -298,7 +315,7 @@ def chat():
                 return redirect(url_for('login_root'))
         except KeyError:
             return redirect(url_for('login_root'))
-#        return render_template('login.html')
+            #        return render_template('login.html')
     msg = request.form
     print msg
     if request.method == 'POST':
@@ -339,13 +356,18 @@ def passwordRecoveryStepTwo():
         digitcode = request.form['sixDigitCode']
         print digitcode
         with sqlite3.connect("project2018.db") as conn:
-            sqls = "SELECT username, email FROM restart_password_cods WHERE reset = '{0}'".format(digitcode)
+            sqls = "SELECT username, email, created FROM restart_password_cods WHERE reset = '{0}'".format(digitcode)
             find = conn.execute(sqls)
             result = find.fetchall()
             print result
             if (len(result) > 0):
-                redirect(url_for('passwordRecoveryStepThree'))
-                return render_template('recovery3.html')
+                resetPasswordCreatedDateTimeString = result[0][2]
+                resetPasswordCreatedDateTime = datetime.datetime.strptime(resetPasswordCreatedDateTimeString, DATE_TIME_FORMAT)
+                if (datetime.datetime.now() - resetPasswordCreatedDateTime).days < 1:
+                    redirect(url_for('passwordRecoveryStepThree'))
+                    return render_template('recovery3.html')
+                else:
+                    pass
     return render_template('recovery2.html')
 
 
@@ -408,6 +430,8 @@ def register_root():
         return redirect(url_for('login_root'))
 
 
+# endregion
+
 def validation(username, password, passwordrpt, FirstName, LastName, bday, email):
     pas = True
     if len(username) < 5:
@@ -429,7 +453,8 @@ def validation(username, password, passwordrpt, FirstName, LastName, bday, email
 
     if len(userData) > 0:
         print 1
-        flash("There is an account under this mail. If you forget the password, you can reset it on the login page", 'category2')
+        flash("There is an account under this mail. If you forget the password, you can reset it on the login page",
+              'category2')
         pas = False
 
     if len(password) < 7:
@@ -442,11 +467,12 @@ def validation(username, password, passwordrpt, FirstName, LastName, bday, email
         flash("Passwords do not match", 'category2')
         pas = False
 
-    string_with_leter = password.isupper() or password.islower()
+    password_atleast_one_uppper = any(i.isupper() for i in password)
+    password_atleast_one_lower = any(i.islower() for i in password)
 
-    if string_with_leter != True:
+    if not (password_atleast_one_uppper and password_atleast_one_lower):
         print 4
-        flash("Passwords must contain characters", 'category2')
+        flash("Passwords must contain at least one upper and one lower character", 'category2')
         pas = False
 
     string_with_number = any(i.isdigit() for i in password)
@@ -473,8 +499,6 @@ def validation(username, password, passwordrpt, FirstName, LastName, bday, email
         else:
             flash("Minimum enrollment age is 14 ", 'category2')
             pas = False
-    else:
-        flash("Minimum enrollment age is 14", 'category2')
 
     if len(FirstName) < 1:
         print 9
@@ -504,10 +528,6 @@ def validation(username, password, passwordrpt, FirstName, LastName, bday, email
         flash("There are some issues with registry details. In order to register you need to fix them", 'category1')
 
     return pas
-
-
-
-
 
 
 # -------------------- Routes --------------------

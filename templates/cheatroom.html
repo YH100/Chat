@@ -53,8 +53,11 @@
                 var textElement = document.getElementById("textfield");
                 var message = textElement.value;
                 textElement.value = '';
-                var encryptedMessage = aesObject.encrypt(message);
-                socket.emit('text', {msg: encryptedMessage, userName: userName, userPhoto: userPhoto});
+                if (message && message.length != 0)
+                {
+                    var encryptedMessage = aesObject.encrypt(message);
+                    socket.emit('text', {msg: encryptedMessage, userName: userName, userPhoto: userPhoto});
+                }
             });
         };
         function addNewMessage(message, userThatSentTheMessage, photoOfTheUserThatSentTheMessage) {
@@ -411,7 +414,12 @@
 </head>
 <body>
 
-<h1>Welcome: {{ session['userName'] }}</h1>
+<h1>Welcome {{ session['userName'] }} to room: {{
+    'Sport' if session['room'] == 'Room Number 1' else
+        'Coputer Games' if session['room'] == 'Room Number 2' else
+            'Food - Cooking' if session['room'] == 'Room Number 3' else
+                'Theater' if session['room'] == 'Room Number 4'
+    }}</h1>
 <br>
 
 <table>
